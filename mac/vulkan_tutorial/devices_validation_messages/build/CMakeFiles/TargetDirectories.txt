@@ -1,0 +1,5 @@
+/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/devices_validation_messages/build/CMakeFiles/devices_validation_messages.dir
+/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/devices_validation_messages/build/CMakeFiles/debug.dir
+/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/devices_validation_messages/build/CMakeFiles/release.dir
+/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/devices_validation_messages/build/CMakeFiles/edit_cache.dir
+/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/devices_validation_messages/build/CMakeFiles/rebuild_cache.dir

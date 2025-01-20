@@ -104,8 +104,13 @@ private:
         createInfo.enabledExtensionCount = glfwExtensionCount;
         createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-        // Which global validation layers to enable? 
-        createInfo.enabledLayerCount = 0;
+        // Which global validation layers to enable -- depends on which mode you are on  
+        if (enableValidationLayers) {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            createInfo.ppEnabledLayerNames = validationLayers.data();
+        } else {
+            createInfo.enabledLayerCount = 0;
+        }
         
 
         // Regarding Extensions -- Info about what vulkan supports(completely optional, CAN BE REMOVED SAFELY!!!)
