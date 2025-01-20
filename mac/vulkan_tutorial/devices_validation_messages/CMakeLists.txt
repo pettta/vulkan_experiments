@@ -8,8 +8,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)c
 
 
 add_executable(devices_validation_messages main.cpp)
@@ -29,8 +28,12 @@ target_compile_options(devices_validation_messages PRIVATE
 )
 
 target_compile_definitions(devices_validation_messages PRIVATE
-    $<$<CONFIG:Release>:NDEBUG>
+    $<$<CONFIG:Release>:DNDEBUG>
 )
+
+if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DNDEBUG)
+endif()
 
 # Custom targets for easy building
 add_custom_target(debug
