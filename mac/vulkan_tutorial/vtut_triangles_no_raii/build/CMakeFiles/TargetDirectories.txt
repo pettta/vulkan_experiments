@@ -1,5 +1,0 @@
-/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/vtut_triangles_no_raii/build/CMakeFiles/vtut_triangles_no_raii.dir
-/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/vtut_triangles_no_raii/build/CMakeFiles/debug.dir
-/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/vtut_triangles_no_raii/build/CMakeFiles/release.dir
-/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/vtut_triangles_no_raii/build/CMakeFiles/edit_cache.dir
-/Users/thomaspett/Desktop/projects/cpp_test/vulkan_experiments/mac/vulkan_tutorial/vtut_triangles_no_raii/build/CMakeFiles/rebuild_cache.dir
