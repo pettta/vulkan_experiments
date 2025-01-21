@@ -7,6 +7,7 @@
 # Then I went to try out https://vulkan-tutorial.com/
 - Uses GLFW rather than SDL for the window 
 - much longer and more explained beginnings but doesn't get as far 
+- about halfway through the second chapter rotated back to the first attempt and got the basic window working that way 
 
 # Requirements For Mac
 - VulkanSDK==1.4.304.0

@@ -1,6 +1,6 @@
 # Source: https://vulkan-tutorial.com/
 
-## (1) Basic Foundation
+## (1) vulkanTutorial
 
 - Provides the very basic skeleton of a window using GLFW 
 
