@@ -31,10 +31,6 @@ target_compile_definitions(devices_validation_messages PRIVATE
     $<$<CONFIG:Release>:DNDEBUG>
 )
 
-if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-DNDEBUG)
-endif()
-
 # Custom targets for easy building
 add_custom_target(debug
     COMMAND ${CMAKE_COMMAND} --build . --config Debug
