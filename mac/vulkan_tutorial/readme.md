@@ -1,9 +1,3 @@
-# Tried to mess around with https://vkguide.dev/ 
-
-- Doesn't play super nicefully with mac if you aren't already super familiar with vulkan
-- Tried to get it to work for about 5 hours than gave up and went to a different tutorial, will come back to it later 
-
-
 # Source: https://vulkan-tutorial.com/
 
 ## (1) Basic Foundation
