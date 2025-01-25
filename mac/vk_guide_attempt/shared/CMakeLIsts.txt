@@ -1,0 +1,18 @@
+add_library(vkguide_shared
+    vk_initializers.cpp
+    vk_initializers.h
+    vk_mem_alloc.h
+    vk_types.h
+)
+
+find_package(Vulkan REQUIRED)
+find_package(glm REQUIRED)
+find_package(SDL2 REQUIRED)
+include_directories(vkguide_shared ${SDL2_INCLUDE_DIRS} shared)
+target_link_libraries(vkguide_shared glm::glm)
+target_link_libraries(vkguide_shared ${SDL2_LIBRARIES})
+target_link_libraries(vkguide_shared Vulkan::Vulkan)
+
+target_include_directories(vkguide_shared PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
