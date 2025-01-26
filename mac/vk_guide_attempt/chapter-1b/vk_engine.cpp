@@ -137,11 +137,13 @@ void VulkanEngine::init_swapchain()
 {
 	create_swapchain(_windowExtent.width, _windowExtent.height);
 }
+
+/**We will use VK init for the next two, but its basically 
+Create info struct --> fill attributes --> check everything works out **/
+
 void VulkanEngine::init_commands()
 {
-    // We will be using VKInit for this, but its basically the 
-    // Create info struct --> fill attributes --> check everything works out 
-    // For the command pool --> then the command buffer 
+    // command pool info --> command buffer info --> verify
     VkCommandPoolCreateInfo commandPoolInfo = vkinit::command_pool_create_info(_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     for (int i = 0; i < FRAME_OVERLAP; i++) {
         // NOTE: this line below might be causing issues 
@@ -151,10 +153,18 @@ void VulkanEngine::init_commands()
 		VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._mainCommandBuffer));
 	}
 }
-
 void VulkanEngine::init_sync_structures()
 {
-    //nothing yet
+    //fenceinfo --> sempaphore info --> verify 
+	//1 fence to control gpu when finished render frame, 2 semaphores to sync render with swapchain
+	//we want the fence to start signalled so we can wait on it on the first frame (VK_FENCE_CREATE_SIGNALED_BIT)
+	VkFenceCreateInfo fenceCreateInfo = vkinit::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
+	VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+	for (int i = 0; i < FRAME_OVERLAP; i++) {
+		VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_frames[i]._renderFence));
+		VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._swapchainSemaphore));
+		VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._renderSemaphore));
+	}
 }
 //< init
 
@@ -190,7 +200,27 @@ void VulkanEngine::cleanup()
 
 void VulkanEngine::draw()
 {
-    // nothing yet
+//> draw_1: wait until the gpu has finished rendering the last frame. Timeout of 1s
+	VK_CHECK(vkWaitForFences(_device, 1, &get_current_frame()._renderFence, true, 1000000000));
+	VK_CHECK(vkResetFences(_device, 1, &get_current_frame()._renderFence));
+//< draw_1
+
+//> draw_2: request image from the swapchain
+	uint32_t swapchainImageIndex;
+	VK_CHECK(vkAcquireNextImageKHR(_device, _swapchain, 1000000000, get_current_frame()._swapchainSemaphore, nullptr, &swapchainImageIndex));
+//< draw_2
+
+//> draw_3: begin recording the command buffer
+	VkCommandBuffer cmd = get_current_frame()._mainCommandBuffer;
+
+	// now that the cmds finished executing, we can safely reset the cmd buffer to begin recording again.
+	VK_CHECK(vkResetCommandBuffer(cmd, 0));
+
+	//begin the cmd buffer recording. We use this cmd buffer once, so we let vulkan know that
+	VkCommandBufferBeginInfo cmdBeginInfo = vkinit::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+//< draw_3
+
 }
 //< extras
 

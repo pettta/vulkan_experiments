@@ -9,8 +9,8 @@
 struct FrameData {
 	// We need to GPUsync without race conditions  
 	// TODO uncomment 
-	//VkSemaphore _swapchainSemaphore, _renderSemaphore; // Sync between queues 
-	//VkFence _renderFence; // Sync between Device (GPU) and Host (CPU)
+	VkSemaphore _swapchainSemaphore, _renderSemaphore; // Sync between GPU and GPU 
+	VkFence _renderFence; // Sync between Device (GPU) and Host (CPU)
 
 
 	// For vulkan commands we need to store the command pools and buffers 
