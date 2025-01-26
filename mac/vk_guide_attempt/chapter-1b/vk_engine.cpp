@@ -78,11 +78,9 @@ void VulkanEngine::init_vulkan()
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
 	features12.bufferDeviceAddress = true;
 	features12.descriptorIndexing = true;
-
     VkPhysicalDeviceSynchronization2Features sync2Features{};
     sync2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
     sync2Features.synchronization2 = true;
-
 	//use vkbootstrap to select a gpu. 
 	//We want a gpu that can write to the SDL surface and supports vulkan 1.3 (but alas we are on mac, so add the same features manually)
 	vkb::PhysicalDeviceSelector selector{ vkb_inst };
@@ -107,6 +105,11 @@ void VulkanEngine::init_vulkan()
 	// // Get the VkDevice handle used in the rest of a vulkan application
 	_device = vkbDevice.device;
 	_chosenGPU = physicalDevice.physical_device;
+
+    /**Use VKbootstrap to init graphics queue and family  */
+    // NOTE: these lines below might be causing issues 
+    _graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value(); 
+    _graphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height)
 {
@@ -136,8 +139,19 @@ void VulkanEngine::init_swapchain()
 }
 void VulkanEngine::init_commands()
 {
-    //nothing yet
+    // We will be using VKInit for this, but its basically the 
+    // Create info struct --> fill attributes --> check everything works out 
+    // For the command pool --> then the command buffer 
+    VkCommandPoolCreateInfo commandPoolInfo = vkinit::command_pool_create_info(_graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    for (int i = 0; i < FRAME_OVERLAP; i++) {
+        // NOTE: this line below might be causing issues 
+		VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_frames[i]._commandPool));
+		// allocate the default command buffer that we will use for rendering
+		VkCommandBufferAllocateInfo cmdAllocInfo = vkinit::command_buffer_allocate_info(_frames[i]._commandPool, 1);
+		VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._mainCommandBuffer));
+	}
 }
+
 void VulkanEngine::init_sync_structures()
 {
     //nothing yet
@@ -159,7 +173,12 @@ void VulkanEngine::destroy_swapchain()
 void VulkanEngine::cleanup()
 {
     // Cleanup in reverse order (throws errors otherwise due to leaks)
+    // Commands --> Sync --> Swapchain --> Surface --> Device --> Debug --> Instance --> Window
     if (_isInitialized) {
+		vkDeviceWaitIdle(_device);
+		for (int i = 0; i < FRAME_OVERLAP; i++) {
+			vkDestroyCommandPool(_device, _frames[i]._commandPool, nullptr);
+        }
 		destroy_swapchain();
 		vkDestroySurfaceKHR(_instance, _surface, nullptr);
 		vkDestroyDevice(_device, nullptr);

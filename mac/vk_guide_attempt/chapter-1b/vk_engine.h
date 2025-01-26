@@ -5,6 +5,24 @@
 
 #include "vk_types.h"
 
+
+struct FrameData {
+	// We need to GPUsync without race conditions  
+	// TODO uncomment 
+	//VkSemaphore _swapchainSemaphore, _renderSemaphore; // Sync between queues 
+	//VkFence _renderFence; // Sync between Device (GPU) and Host (CPU)
+
+
+	// For vulkan commands we need to store the command pools and buffers 
+	VkCommandPool _commandPool;
+	VkCommandBuffer _mainCommandBuffer;
+};
+
+//double buffering 
+// TODO IN FUTURE: Implement triple buffering, V-sync, and frame limiting 
+constexpr unsigned int FRAME_OVERLAP = 2; 
+
+
 class VulkanEngine {
 public:
 	// Store Vulkan fundamental objects 
@@ -17,6 +35,12 @@ public:
 	// Store swapchain fundamental objects
 	VkSwapchainKHR _swapchain;
 	VkFormat _swapchainImageFormat;
+
+	// Store objects(queues) for commands 
+	FrameData _frames[FRAME_OVERLAP];
+	FrameData& get_current_frame() { return _frames[_frameNumber % FRAME_OVERLAP]; };
+	VkQueue _graphicsQueue;
+	uint32_t _graphicsQueueFamily;
 
 	std::vector<VkImage> _swapchainImages;
 	std::vector<VkImageView> _swapchainImageViews;
