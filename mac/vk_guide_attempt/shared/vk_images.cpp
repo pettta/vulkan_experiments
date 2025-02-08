@@ -2,7 +2,7 @@
 #include <vk_initializers.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 
 //> transition
 #include <vk_initializers.h>
@@ -31,7 +31,11 @@ void vkutil::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout 
     depInfo.imageMemoryBarrierCount = 1;
     depInfo.pImageMemoryBarriers = &imageBarrier;
 
-    vkCmdPipelineBarrier2(cmd, &depInfo);
+    // Note: this line below is different than it would be 
+    // Since we are working on mac we have to call 2KHR rather than just 2 since we are still working in vulkan 1.2
+    // TODO THIS IS THE BIG ISSUE 
+    // NON KHR DOESNT WORK ON MAC, BUT KHR ISNT LOADING RN 
+    vkCmdPipelineBarrier2KHR(cmd, &depInfo);  
 }
 //< transition
 //> copyimg
