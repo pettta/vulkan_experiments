@@ -11,3 +11,5 @@
 
 # Requirements For Mac
 - VulkanSDK==1.4.304.0
+- Volk==1.4.304.1
+- SDL== 

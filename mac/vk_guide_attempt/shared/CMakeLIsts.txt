@@ -12,6 +12,7 @@ find_package(Vulkan REQUIRED)
 find_package(glm REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(fmt REQUIRED) 
+find_package(volk REQUIRED)
 
 
 include_directories(vkguide_shared ${SDL2_INCLUDE_DIRS} shared)
@@ -19,6 +20,10 @@ target_link_libraries(vkguide_shared glm::glm)
 target_link_libraries(vkguide_shared ${SDL2_LIBRARIES})
 target_link_libraries(vkguide_shared fmt::fmt)
 target_link_libraries(vkguide_shared Vulkan::Vulkan)
+# NOTE, adding volk here, fixes the make error with KHR, but causes a bus error at runtime 
+# Changing the vulkan imports to volk imports changes the bus error to a segfault at runtime 
+# 
+target_link_libraries(vkguide_shared volk::volk volk::volk_headers) 
 
 
 target_include_directories(vkguide_shared PUBLIC

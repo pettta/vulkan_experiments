@@ -11,6 +11,7 @@
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
+#define VK_NO_PROTOTYPES // Make sure that 
 
 #include "vk_initializers.h"
 #include "vk_types.h"
@@ -50,7 +51,8 @@ void VulkanEngine::init()
 
 void VulkanEngine::init_vulkan()
 {
-    /** Use vkbootstrap to create a Vulkan instance **/
+    volkInitialize(); // Must check return value!
+	/** Use vkbootstrap to create a Vulkan instance **/
     
     //make the vulkan instance, with basic debug features
     vkb::InstanceBuilder builder;
@@ -112,9 +114,14 @@ void VulkanEngine::init_vulkan()
 	_device = vkbDevice.device;
 	_chosenGPU = physicalDevice.physical_device;
 
-    /**Use VKbootstrap to init graphics queue and family  */
+    // Volk for device and instance 
+	volkLoadInstance(_instance); 
+	volkLoadDevice(_device);
+
+	/**Use VKbootstrap to init graphics queue and family  */
     _graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value(); 
     _graphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+
 }
 void VulkanEngine::create_swapchain(uint32_t width, uint32_t height)
 {
@@ -233,54 +240,55 @@ void VulkanEngine::draw()
 //> draw_4 make swapchain img to writeable
 	vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
-// 	//make a clear-color from frame number. This will flash with a 120 frame period. Clear image 
-// 	VkClearColorValue clearValue;
-// 	float flash = std::abs(std::sin(_frameNumber / 120.f));
-// 	clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
-// 	VkImageSubresourceRange clearRange = vkinit::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
-// 	vkCmdClearColorImage(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
+	//make a clear-color from frame number. This will flash with a 120 frame period. Clear image 
+	VkClearColorValue clearValue;
+	float flash = std::abs(std::sin(_frameNumber / 120.f));
+	clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+	VkImageSubresourceRange clearRange = vkinit::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
+	vkCmdClearColorImage(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
 
-// 	//make the swapchain image into presentable mode
-// 	vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	//make the swapchain image into presentable mode
+	vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-// 	//finalize the command buffer (we can no longer add commands, but it can now be executed)
-// 	VK_CHECK(vkEndCommandBuffer(cmd));
-// //< draw_4
+	//finalize the command buffer (we can no longer add commands, but it can now be executed)
+	VK_CHECK(vkEndCommandBuffer(cmd));
+//< draw_4
 
-// //> draw_5 prepare the submission to the queue, then render and submit 
-// 	//we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
-// 	//we will signal the _renderSemaphore, to signal that rendering has finished
-// 	VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);	
-// 	VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,get_current_frame()._swapchainSemaphore);
-// 	VkSemaphoreSubmitInfo signalInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame()._renderSemaphore);	
+//> draw_5 prepare the submission to the queue, then render and submit 
+	//we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
+	//we will signal the _renderSemaphore, to signal that rendering has finished
+	VkCommandBufferSubmitInfo cmdinfo = vkinit::command_buffer_submit_info(cmd);	
+	VkSemaphoreSubmitInfo waitInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,get_current_frame()._swapchainSemaphore);
+	VkSemaphoreSubmitInfo signalInfo = vkinit::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, get_current_frame()._renderSemaphore);	
 	
-// 	VkSubmitInfo2 submit = vkinit::submit_info(&cmdinfo,&signalInfo,&waitInfo);	
+	VkSubmitInfo2 submit = vkinit::submit_info(&cmdinfo,&signalInfo,&waitInfo);	
 
-// 	//submit command buffer to the queue and execute it.
-// 	// _renderFence will now block until the graphic commands finish execution
-// 	VK_CHECK(vkQueueSubmit2(_graphicsQueue, 1, &submit, get_current_frame()._renderFence));
-// //< draw_5
+	//submit command buffer to the queue and execute it.
+	// _renderFence will now block until the graphic commands finish execution
+	// macos requires this be a KHR function, but the non KHR version would be used for windows, etc...
+	VK_CHECK(vkQueueSubmit2KHR(_graphicsQueue, 1, &submit, get_current_frame()._renderFence));
+//< draw_5
 
-// //> draw_6 put img we just rendered to into the visible window.
-// 	// we want to wait on the _renderSemaphore for that, 
-// 	// as its necessary that drawing commands have finished before the image is displayed to the user
-// 	VkPresentInfoKHR presentInfo = {};
-// 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-// 	presentInfo.pNext = nullptr;
-// 	presentInfo.pSwapchains = &_swapchain;
-// 	presentInfo.swapchainCount = 1;
+//> draw_6 put img we just rendered to into the visible window.
+	// we want to wait on the _renderSemaphore for that, 
+	// as its necessary that drawing commands have finished before the image is displayed to the user
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = nullptr;
+	presentInfo.pSwapchains = &_swapchain;
+	presentInfo.swapchainCount = 1;
 
-// 	presentInfo.pWaitSemaphores = &get_current_frame()._renderSemaphore;
-// 	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &get_current_frame()._renderSemaphore;
+	presentInfo.waitSemaphoreCount = 1;
 
-// 	presentInfo.pImageIndices = &swapchainImageIndex;
+	presentInfo.pImageIndices = &swapchainImageIndex;
 
-// 	VK_CHECK(vkQueuePresentKHR(_graphicsQueue, &presentInfo));
+	VK_CHECK(vkQueuePresentKHR(_graphicsQueue, &presentInfo));
 
-// 	//increase the number of frames drawn
-// 	_frameNumber++;
+	//increase the number of frames drawn
+	_frameNumber++;
 
-// //< draw_6
+//< draw_6
 
 }
 //< extras
