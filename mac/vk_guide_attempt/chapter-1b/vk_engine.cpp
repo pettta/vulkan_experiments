@@ -8,10 +8,13 @@
 
 
 // -- Extrenal 
+//#include "volk.h"
+#define VK_NO_PROTOTYPES
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
-#define VK_NO_PROTOTYPES // Make sure that 
+
+
 
 #include "vk_initializers.h"
 #include "vk_types.h"

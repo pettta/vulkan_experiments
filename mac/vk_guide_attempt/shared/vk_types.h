@@ -12,10 +12,13 @@
 #include <functional>
 #include <deque>
 
+// Volk must come first
 #include "volk.h"
-#include <vulkan/vk_enum_string_helper.h>
+
+// Rest of the includes 
 #include "vk_mem_alloc.h"
 
+#include <vulkan/vk_enum_string_helper.h>
 #include <fmt/core.h>
 
 #include <glm/mat4x4.hpp>
