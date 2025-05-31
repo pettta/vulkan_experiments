@@ -33,8 +33,6 @@ void vkutil::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout 
 
     // Note: this line below is different than it would be 
     // Since we are working on mac we have to call 2KHR rather than just 2 since we are still working in vulkan 1.2
-    // TODO THIS IS THE BIG ISSUE 
-    // NON KHR DOESNT WORK ON MAC, BUT KHR ISNT LOADING RN 
     vkCmdPipelineBarrier2KHR(cmd, &depInfo);  
 }
 //< transition
@@ -70,7 +68,9 @@ void vkutil::copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage de
 	blitInfo.regionCount = 1;
 	blitInfo.pRegions = &blitRegion;
 
-	vkCmdBlitImage2(cmd, &blitInfo);
+    // Note: this line below is different than it would be 
+    // Since we are working on mac we have to call 2KHR rather than just 2 since we are still working in vulkan 1.2
+	vkCmdBlitImage2KHR(cmd, &blitInfo);
 }
 //< copyimg
 //> mipgen

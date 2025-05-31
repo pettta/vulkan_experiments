@@ -78,6 +78,10 @@ public:
 	struct SDL_Window* _window{ nullptr };
 	static VulkanEngine& Get();
 
+	// Draw related resources
+	AllocatedImage _drawImage;
+	VkExtent2D _drawExtent;
+
 	// Creation and Cleanup for vulkan objects 
 	DeletionQueue _mainDeletionQueue; 
 	VmaAllocator _allocator; 
@@ -86,6 +90,7 @@ public:
 	void init(); //initializes everything in the engine
 	void cleanup(); //shuts down the engine
 	void draw(); //draw loop
+	void draw_background(VkCommandBuffer cmd); //draw background image 
 	void run(); //run main loop
 
 private:

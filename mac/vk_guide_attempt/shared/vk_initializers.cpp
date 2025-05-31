@@ -279,6 +279,7 @@ VkImageCreateInfo vkinit::image_create_info(VkFormat format, VkImageUsageFlags u
     info.samples = VK_SAMPLE_COUNT_1_BIT;
 
     //optimal tiling, which means the image is stored on the best gpu format
+    //alternatively, we could use linear tiling, which is more CPU friendly, really only used for CPU readback 
     info.tiling = VK_IMAGE_TILING_OPTIMAL;
     info.usage = usageFlags;
 
