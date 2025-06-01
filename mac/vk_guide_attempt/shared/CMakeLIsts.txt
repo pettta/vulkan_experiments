@@ -2,10 +2,14 @@
 add_library(vkguide_shared
     vk_initializers.cpp
     vk_images.cpp 
+    vk_descriptors.cpp
+    vk_pipelines.cpp
     vk_initializers.h
     vk_mem_alloc.h
     vk_types.h
     vk_images.h
+    vk_descriptors.h
+    vk_pipelines.h
 )
 
 find_package(Vulkan REQUIRED)
