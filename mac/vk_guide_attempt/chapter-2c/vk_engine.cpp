@@ -210,7 +210,7 @@ void VulkanEngine::init_swapchain()
 	VK_CHECK(vkCreateImageView(_device, &rview_info, nullptr, &_drawImage.imageView));
 
 	//add to deletion queues
-	_mainDeletionQueue.push_function([=]() {
+	_mainDeletionQueue.push_function([this]() {
 		vkDestroyImageView(_device, _drawImage.imageView, nullptr);
 		vmaDestroyImage(_allocator, _drawImage.image, _drawImage.allocation);
 	});
