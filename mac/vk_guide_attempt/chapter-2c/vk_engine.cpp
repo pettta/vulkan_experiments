@@ -8,7 +8,7 @@
 
 
 // -- Extrenal 
-//#include "volk.h"
+// #include "volk.h"
 #define VK_NO_PROTOTYPES
 
 #include <SDL.h>
@@ -25,6 +25,12 @@
 #include "vk_pipelines.h"
 
 #include "VkBootstrap.h"
+
+
+#define IMGUI_IMPL_VULKAN_USE_VOLK
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_sdl2.h"
+#include "imgui/backends/imgui_impl_vulkan.h"
 //< includes
 
 //> init
@@ -53,6 +59,7 @@ void VulkanEngine::init()
     init_sync_structures();
 	init_descriptors();
 	init_pipelines();
+	init_imgui(); 
 
     // everything went fine
     _isInitialized = true;
@@ -324,6 +331,73 @@ void VulkanEngine::init_pipelines()
 		vkDestroyPipeline(_device, _gradientPipeline, nullptr);
 		});
 }
+
+// TODO FIX THIS DISASTER 
+// FUCK THIS 
+void VulkanEngine::init_imgui()
+{
+	return ; 
+	// 1: create descriptor pool for IMGUI size of the pool is overkill, copied from imgui demo
+	VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000;
+	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
+	VkDescriptorPool imguiPool;
+	VK_CHECK(vkCreateDescriptorPool(_device, &pool_info, nullptr, &imguiPool));
+	
+	// 2: initialize imgui library
+	ImGui::CreateContext(); //initializes core structures
+	ImGui_ImplSDL2_InitForVulkan(_window);
+
+	// TODO Pass volk fp's to Imgui
+	// Commented out buggy lines below (NONE OF THEM WORKED)
+	// init_info.GetInstanceProcAddr = vkGetInstanceProcAddr;
+    // init_info.GetDeviceProcAddr = vkGetDeviceProcAddr;
+	// ImGui_ImplVulkan_LoadFunctions(VK_API_VERSION_1_2, [](const char* function_name, void* user_data) {
+	// 	VkInstance instance = *reinterpret_cast<VkInstance*>(user_data);
+	// 	return vkGetInstanceProcAddr(instance, function_name);
+	// }, &_instance);
+
+
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	// Vulkan IMGUI default init info 
+	init_info.Instance = _instance;
+	init_info.PhysicalDevice = _chosenGPU;
+	init_info.Device = _device;
+	init_info.Queue = _graphicsQueue;
+	init_info.DescriptorPool = imguiPool;
+	init_info.MinImageCount = 3;
+	init_info.ImageCount = 3;
+
+	
+	// //Vulkan IMGUI dynamic rendering parameters
+	init_info.UseDynamicRendering = true; // THE PROBLEM LINE 
+	init_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
+	init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchainImageFormat;
+	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	ImGui_ImplVulkan_Init(&init_info); // THE LINE THAT ERROS DUE TO THE PROBLEM LINE ABOVE 
+	ImGui_ImplVulkan_CreateFontsTexture();
+
+	// make sure it gets deleted at shutdown 
+	_mainDeletionQueue.push_function([&]() {
+		ImGui_ImplVulkan_Shutdown();
+		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
+	});
+}
 //< init
 
 //> extras
@@ -477,10 +551,10 @@ void VulkanEngine::run()
     while (!bQuit) {
         // Handle events on queue
         while (SDL_PollEvent(&e) != 0) {
-            // close the window when user alt-f4s or clicks the X button
-            if (e.type == SDL_QUIT)
-                bQuit = true;
-
+            if (e.type == SDL_QUIT){ // close window when alt-f4s or X button
+				bQuit = true;
+			}
+                
             if (e.type == SDL_WINDOWEVENT) {
                 if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
                     stop_rendering = true;
@@ -489,6 +563,9 @@ void VulkanEngine::run()
                     stop_rendering = false;
                 }
             }
+
+			// TODO READD IMGUI STUFF HERE 
+			// ImGui_ImplSDL2_ProcessEvent(&e);
         }
 
         // do not draw if we are minimized
@@ -497,6 +574,14 @@ void VulkanEngine::run()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
+
+		// IMGUI new frame 
+		// TODO READD 
+		// ImGui_ImplVulkan_NewFrame();
+		// ImGui_ImplSDL2_NewFrame();
+		// ImGui::NewFrame();
+		// ImGui::ShowDemoWindow(); //some imgui UI to test
+		// ImGui::Render(); //make imgui calculate internal draw structures
 
         draw();
     }

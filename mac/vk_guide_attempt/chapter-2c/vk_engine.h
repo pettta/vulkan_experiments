@@ -113,5 +113,7 @@ private:
 	void init_descriptors(); 
 	void init_pipelines(); 
 
+	void init_imgui(); 
+
 };
 //< intro
