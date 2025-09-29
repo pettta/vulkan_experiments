@@ -48,3 +48,4 @@ https://visualstudio.microsoft.com/vs/community/
 - really modular code so that someone can drop this into a new repo, then start working from it as a base tool
     i imagine say someone wants to make some IMGUI based program that also has a shader hot reloader in it to test shaders alongside the other
     plugings that they are making 
+- export functionality of images and videos produced with the shader section 
