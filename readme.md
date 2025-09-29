@@ -9,7 +9,24 @@
 - much longer and more explained beginnings but doesn't get as far 
 - about halfway through the second chapter rotated back to the first attempt and got the basic window working that way 
 
-# Requirements For Mac
+# Requirements 
+## Requirements For Mac (through homebrew)
+- clang++, cmake 
 - VulkanSDK==1.4.304.0
 - Volk==1.4.304.1
 - SDL== 
+## Requirements for windows (through visual studio installer)
+- Install MSVC C/C++ Compiler `cl` 
+- Install Cmake and Nmake 
+- Install windows 10 SDK 
+- we have everything else stored in files in the repo for windows 
+
+# Building 
+## Building on mac 
+- `cmake -B build .` 
+- `cd ./build`
+- `make`
+## Building on windows 
+- `cmake -S . -B build -G "Visual Studio 16 2019" -A x64` 
+- `cd ./build`
+- `nmake` 
