@@ -316,7 +316,7 @@ void VulkanEngine::run()
 			ImGui::InputFloat4("data2",(float*)& selected.data.data2);
 			ImGui::InputFloat4("data3",(float*)& selected.data.data3);
 			ImGui::InputFloat4("data4",(float*)& selected.data.data4);
-		
+			ImGui::ShowDemoWindow();
 			ImGui::End();
 		}
 		ImGui::Render();
