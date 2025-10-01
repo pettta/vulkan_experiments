@@ -27,25 +27,33 @@ https://visualstudio.microsoft.com/vs/community/
 - we have everything else stored in files in the repo for windows 
 
 # Building 
-## Building on mac 
+## Manual Building 
+### Building on mac in the mac repo
 - `cmake -B build .` 
 - `cd ./build`
 - `make`
-## Building on windows 
+### Building on windows in the windows repo
 - `cmake -B build .` 
 - `cmake --build build --config Release`
 - `cd ./bin`
 - `chapter_0.exe` 
+## Os-independent automated building
+- `python local_setup.py` 
 
 # Long Term Goals:
 - spir-v shader hot reloading at runtime. 
     have an imgui window that has two sections: 
     (1) on the left is the shader source code 
     (2) on the right is the output of the shader rendered assuming it throws no errors, else it displays a message 
+    (3) export functionality of images and videos produced with the shader section  
+
 - OS independent building and running 
     ideally the user on linux, mac, windows just runs some script at the top level and it builds everything they need to 
-    then they just run another script to run it 
+    then they just run another script to run it. This should also just use a single python one-liner. 
+
 - really modular code so that someone can drop this into a new repo, then start working from it as a base tool
     i imagine say someone wants to make some IMGUI based program that also has a shader hot reloader in it to test shaders alongside the other
-    plugings that they are making 
-- export functionality of images and videos produced with the shader section 
+    plugings that they are making
+
+- Optional build mode for "Debug" which not only logs errors and stuff in the console 
+    but also launches a tracy server advises you to run the executable so you can do analysis of performance 
