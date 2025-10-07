@@ -55,6 +55,10 @@
         "streambuf": "cpp",
         "unordered_map": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "chrono": "cpp",
+        "system_error": "cpp",
+        "typeindex": "cpp",
+        "xlocale": "cpp"
     }
 }
