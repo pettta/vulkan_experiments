@@ -13,12 +13,19 @@
 # Requirements 
 https://vulkan.lunarg.com/sdk/home for vulkanSDK (to test everything worked run `vkcube` to see a spinning cube)
 
-## Requirements For Mac (through homebrew)
-- VulkanSDK==1.4.304.0 (get from website)
+## Requirements For Mac (mac folder through homebrew)
+- VulkanSDK==1.4.321.0 (get from website)
 - clang++, cmake
-- Volk==1.4.304.1
-- SDL== 
-## Requirements for windows (through visual studio installer)
+- vulkan-headers==1.4.321.0
+- vulkan-loader==1.4.309
+- vulkan-volk==1.4.304.1
+- SDL2 
+## Requirements for Mac (os independent folder through homebrew )
+- Vulkan API v1.2.296 from SDK=1.4.321.0
+- vulkan-utility-libraries==1.4.321.0
+- clang++, cmake>=3.21, make 
+- 
+## Requirements for windows (os independent folder through visual studio installer)
 https://visualstudio.microsoft.com/vs/community/ 
 - Install MSVC C/C++ Compiler `cl` 
 - Install Cmake>=3.21 and Nmake 
@@ -41,15 +48,19 @@ https://visualstudio.microsoft.com/vs/community/
 - `python local_setup.py` 
 
 # Long Term Goals:
+## Done 
+
+## In Progress 
+- OS independent building and running 
+    ideally the user on linux, mac, windows just runs some script at the top level and it builds everything they need to 
+    then they just run another script to run it. This should also just use a single python one-liner. 
+
+## TODO 
 - spir-v shader hot reloading at runtime. 
     have an imgui window that has two sections: 
     (1) on the left is the shader source code 
     (2) on the right is the output of the shader rendered assuming it throws no errors, else it displays a message 
     (3) export functionality of images and videos produced with the shader section  
-
-- OS independent building and running 
-    ideally the user on linux, mac, windows just runs some script at the top level and it builds everything they need to 
-    then they just run another script to run it. This should also just use a single python one-liner. 
 
 - really modular code so that someone can drop this into a new repo, then start working from it as a base tool
     i imagine say someone wants to make some IMGUI based program that also has a shader hot reloader in it to test shaders alongside the other
