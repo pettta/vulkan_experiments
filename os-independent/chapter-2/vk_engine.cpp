@@ -686,7 +686,7 @@ void VulkanEngine::init_imgui()
 
 	ImGui_ImplVulkan_Init(&init_info);
 
-	ImGui_ImplVulkan_CreateFontsTexture();
+	// ImGui_ImplVulkan_CreateFontsTexture(); // Deprecated in newer versions 
 
 	// add the destroy the imgui created structures
 	_mainDeletionQueue.push_function([=]() {
