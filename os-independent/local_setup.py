@@ -5,10 +5,26 @@ import os
 print(f"Running local setup on {sys.platform}")
 
 
-if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
+def run_cmake_build():
+    subprocess.run(["cmake", "-B", "build", "."])
+    subprocess.run(["cmake", "--build", "build", "--config", "Release"])
+
+
+if sys.platform.startswith("darwin"):
     try:
-        subprocess.run(["cmake", "-B", "build", "."])
-        subprocess.run(["cmake", "--build", "build", "--config", "Release"])
+        run_cmake_build()
+        os.chdir("bin")
+        print("Now you can run the executables! Running Metal Engine...")
+        subprocess.run(["./metal_engine"])
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error: cmake exited with {e.returncode}")
+        sys.exit(e.returncode)
+
+
+if sys.platform.startswith("linux"):
+    try:
+        run_cmake_build()
         os.chdir("bin")
         print("Now you can run the executables! Running Vulkan Engine...")
         subprocess.run(["./vulkan_engine"])
