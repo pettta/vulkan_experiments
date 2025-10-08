@@ -10,8 +10,8 @@ if sys.platform.startswith("linux") or sys.platform.startswith("darwin"):
         subprocess.run(["cmake", "-B", "build", "."])
         subprocess.run(["cmake", "--build", "build", "--config", "Release"])
         os.chdir("bin")
-        print("Now you can run the executables! Running Chapter-2...")
-        subprocess.run(["./chapter_2"])
+        print("Now you can run the executables! Running Vulkan Engine...")
+        subprocess.run(["./vulkan_engine"])
 
     except subprocess.CalledProcessError as e:
         print(f"Error: cmake exited with {e.returncode}")
@@ -28,8 +28,8 @@ if sys.platform.startswith("win"):
         subprocess.run(["cmake", "-B", "build", "."])
         subprocess.run(["cmake", "--build", "build", "--config", "Release"])
         os.chdir(os.path.join("bin", "Release"))
-        print("Now you can run the executables! Running Chapter-2...")
-        subprocess.run(["chapter_2.exe"])
+        print("Now you can run the executables! Running Vulkan Engine...")
+        subprocess.run(["vulkan_engine.exe"])
 
     except subprocess.CalledProcessError as e:
         print(f"Error: cmake exited with {e.returncode}")

@@ -47,6 +47,8 @@ target_sources(imgui PRIVATE
   imgui/imgui_impl_sdl2.cpp
   )
 
+set_property(TARGET imgui PROPERTY CXX_STANDARD 20)
+
 target_link_libraries(imgui PUBLIC Vulkan::Vulkan SDL2::SDL2)
 
 target_include_directories(stb_image INTERFACE stb_image)
