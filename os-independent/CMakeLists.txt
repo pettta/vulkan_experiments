@@ -32,6 +32,8 @@ if(APPLE)
 
   add_executable(metal_engine
     metal-engine/metal_engine.mm
+    frontend/imgui-renderer.cpp
+    frontend/metal_imgui_backend.mm
   )
 
   target_link_libraries(metal_engine PRIVATE

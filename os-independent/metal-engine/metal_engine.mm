@@ -9,7 +9,8 @@
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_metal.h"
+#include "../frontend/imgui-renderer.h"
+#include "../frontend/metal_imgui_backend.h"
 #include <stdio.h>
 #include <SDL.h>
 
@@ -18,16 +19,6 @@
 
 int main(int, char**)
 {
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-
-    // Setup style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -76,15 +67,15 @@ int main(int, char**)
     // Setup Platform/Renderer backends
     CAMetalLayer* layer = (__bridge CAMetalLayer*)SDL_RenderGetMetalLayer(renderer);
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    ImGui_ImplMetal_Init(layer.device);
-    ImGui_ImplSDL2_InitForMetal(window);
+    MetalImguiBackend imguiBackend(layer, window);
+    ImGuiRenderer imguiRenderer(imguiBackend);
+    imguiRenderer.initialize();
+    ImGuiIO& io = imguiRenderer.io();
 
     id<MTLCommandQueue> commandQueue = [layer.device newCommandQueue];
     MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor new];
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
     float clear_color[4] = {0.45f, 0.55f, 0.60f, 1.00f};
 
     // Main loop
@@ -121,51 +112,14 @@ int main(int, char**)
             id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
             [renderEncoder pushDebugGroup:@"ImGui demo"];
 
-            // Start the Dear ImGui frame
-            ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-            ImGui_ImplSDL2_NewFrame();
-            ImGui::NewFrame();
+            imguiBackend.setFrameResources((__bridge void*)commandBuffer,
+                                           renderPassDescriptor,
+                                           (__bridge void*)renderEncoder);
 
-            // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-            if (show_demo_window)
-                ImGui::ShowDemoWindow(&show_demo_window);
-
-            // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-            {
-                static float f = 0.0f;
-                static int counter = 0;
-
-                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-                ImGui::Checkbox("Another Window", &show_another_window);
-
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
-                ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-                ImGui::End();
-            }
-
-            // 3. Show another simple window.
-            if (show_another_window)
-            {
-                ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-                ImGui::Text("Hello from another window!");
-                if (ImGui::Button("Close Me"))
-                    show_another_window = false;
-                ImGui::End();
-            }
-
-            // Rendering
-            ImGui::Render();
-            ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+            // Render Imgui business logic each frame 
+            imguiRenderer.beginFrame();
+            imguiRenderer.businessLogic();
+            imguiRenderer.endFrame();
 
             [renderEncoder popDebugGroup];
             [renderEncoder endEncoding];
@@ -176,9 +130,7 @@ int main(int, char**)
     }
 
     // Cleanup
-    ImGui_ImplMetal_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
+    imguiRenderer.shutdown();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
