@@ -19,17 +19,26 @@ public:
     explicit ImGuiRenderer(ImGuiBackend& backend);
     ~ImGuiRenderer();
 
+    struct FrameState {
+        bool show_demo_window = true;
+        bool show_another_window = false;
+        float clear_color[4] = {0.45f, 0.55f, 0.60f, 1.00f};
+    };
+
     void initialize();
     ImGuiIO& io();
+    FrameState& frameState();
+    const FrameState& frameState() const;
 
     void beginFrame();
-    void businessLogic(); 
+    void businessLogic(FrameState& state);
     void endFrame();
-    void renderFrame(const std::function<void()>& drawUI);
+    void renderFrame(const std::function<void(FrameState&)>& drawUI);
 
     void shutdown();
 
 private:
     ImGuiBackend& backend_;
     bool initialized_{false};
+    FrameState initialState_{};
 };

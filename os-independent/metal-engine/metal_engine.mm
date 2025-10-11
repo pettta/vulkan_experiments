@@ -70,13 +70,10 @@ int main(int, char**)
     MetalImguiBackend imguiBackend(layer, window);
     ImGuiRenderer imguiRenderer(imguiBackend);
     imguiRenderer.initialize();
-    ImGuiIO& io = imguiRenderer.io();
+    imguiRenderer.io();
 
     id<MTLCommandQueue> commandQueue = [layer.device newCommandQueue];
     MTLRenderPassDescriptor* renderPassDescriptor = [MTLRenderPassDescriptor new];
-
-    // Our state
-    float clear_color[4] = {0.45f, 0.55f, 0.60f, 1.00f};
 
     // Main loop
     bool done = false;
@@ -104,8 +101,10 @@ int main(int, char**)
             layer.drawableSize = CGSizeMake(width, height);
             id<CAMetalDrawable> drawable = [layer nextDrawable];
 
+            ImGuiRenderer::FrameState& state = imguiRenderer.frameState();
+
             id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(clear_color[0] * clear_color[3], clear_color[1] * clear_color[3], clear_color[2] * clear_color[3], clear_color[3]);
+            renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(state.clear_color[0] * state.clear_color[3], state.clear_color[1] * state.clear_color[3], state.clear_color[2] * state.clear_color[3], state.clear_color[3]);
             renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
             renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
             renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -116,10 +115,8 @@ int main(int, char**)
                                            renderPassDescriptor,
                                            (__bridge void*)renderEncoder);
 
-            // Render Imgui business logic each frame 
-            imguiRenderer.beginFrame();
-            imguiRenderer.businessLogic();
-            imguiRenderer.endFrame();
+            // Render ImGui frame (using default UI if no custom draw function is provided)
+            imguiRenderer.renderFrame(nullptr);
 
             [renderEncoder popDebugGroup];
             [renderEncoder endEncoding];
